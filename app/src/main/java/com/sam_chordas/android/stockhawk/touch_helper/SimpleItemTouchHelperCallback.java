@@ -8,52 +8,65 @@ import android.support.v7.widget.helper.ItemTouchHelper;
  * credit to Paul Burke (ipaulpro)
  * this class enables swipe to delete in RecyclerView
  */
-public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback{
-  private final ItemTouchHelperAdapter mAdapter;
-  public static final float ALPHA_FULL = 1.0f;
+public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
-  public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter){
-    mAdapter = adapter;
-  }
+    //--------------------------------------------------
+    // Attributes
+    //--------------------------------------------------
 
-  @Override
-  public boolean isItemViewSwipeEnabled(){
-    return true;
-  }
+    private final ItemTouchHelperAdapter mAdapter;
 
-  @Override
-  public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
-    final int dragFlags = 0;
-    final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-    return makeMovementFlags(dragFlags, swipeFlags);
-  }
+    //--------------------------------------------------
+    // Constructor
+    //--------------------------------------------------
 
-  @Override
-  public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder sourceViewHolder, RecyclerView.ViewHolder targetViewHolder){
-    return true;
-  }
-
-  @Override
-  public void onSwiped(RecyclerView.ViewHolder viewHolder, int i){
-    mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
-  }
-
-
-  @Override
-  public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState){
-    if (actionState != ItemTouchHelper.ACTION_STATE_IDLE){
-      ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
-      itemViewHolder.onItemSelected();
+    public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
+        mAdapter = adapter;
     }
 
-    super.onSelectedChanged(viewHolder, actionState);
-  }
+    //--------------------------------------------------
+    // ItemTouchHelper.Callback
+    //--------------------------------------------------
 
-  @Override
-  public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-    super.clearView(recyclerView, viewHolder);
+    @Override
+    public boolean isItemViewSwipeEnabled() {
+        return true;
+    }
 
-    ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
-    itemViewHolder.onItemClear();
-  }
+    @Override
+    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        final int dragFlags = 0;
+        final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        return makeMovementFlags(dragFlags, swipeFlags);
+    }
+
+    @Override
+    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder sourceViewHolder,
+        RecyclerView.ViewHolder targetViewHolder) {
+        return true;
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
+        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+    }
+
+
+    @Override
+    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
+            ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
+            itemViewHolder.onItemSelected();
+        }
+
+        super.onSelectedChanged(viewHolder, actionState);
+    }
+
+    @Override
+    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        super.clearView(recyclerView, viewHolder);
+
+        ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
+        itemViewHolder.onItemClear();
+    }
 }

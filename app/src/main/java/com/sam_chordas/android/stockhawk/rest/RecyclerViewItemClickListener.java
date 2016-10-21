@@ -11,34 +11,53 @@ import android.view.View;
  */
 public class RecyclerViewItemClickListener implements RecyclerView.OnItemTouchListener {
 
-  @Override public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+    //--------------------------------------------------
+    // Attributes
+    //--------------------------------------------------
 
-  }
+    private GestureDetector mGestureDetector;
+    private OnItemClickListener mListener;
 
-  private GestureDetector gestureDetector;
-  private OnItemClickListener listener;
+    //--------------------------------------------------
+    // Interface
+    //--------------------------------------------------
 
-  public interface OnItemClickListener{
-    public void onItemClick(View v, int position);
-  }
-
-  public RecyclerViewItemClickListener(Context context, OnItemClickListener listener) {
-    this.listener = listener;
-    gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-      @Override public boolean onSingleTapUp(MotionEvent e) {
-        return true;
-      }
-    });
-  }
-
-  @Override public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
-    View childView = view.findChildViewUnder(e.getX(), e.getY());
-    if (childView != null && listener != null && gestureDetector.onTouchEvent(e)) {
-      listener.onItemClick(childView, view.getChildPosition(childView));
-      return true;
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
     }
-    return false;
-  }
 
-  @Override public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) { }
+    //--------------------------------------------------
+    // Constructor
+    //--------------------------------------------------
+
+    public RecyclerViewItemClickListener(Context context, OnItemClickListener listener) {
+        mListener = listener;
+        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return true;
+            }
+        });
+    }
+
+    //--------------------------------------------------
+    // RecyclerView.OnItemTouchListener
+    //--------------------------------------------------
+
+    @Override
+    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
+        View childView = view.findChildViewUnder(e.getX(), e.getY());
+        if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
+            mListener.onItemClick(childView, view.getChildPosition(childView));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {}
 }
