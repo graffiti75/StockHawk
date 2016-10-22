@@ -35,5 +35,10 @@ dependencies {
         transitive = true
     }
 
+    // Graph.
     compile 'com.diogobernardino:williamchart:2.3.0'
+
+    // Retrofit.
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 }

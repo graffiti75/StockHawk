@@ -8,9 +8,9 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -22,6 +22,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
+import com.melnykov.fab.FloatingActionButton;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
@@ -30,11 +34,10 @@ import com.sam_chordas.android.stockhawk.rest.RecyclerViewItemClickListener;
 import com.sam_chordas.android.stockhawk.rest.Utils;
 import com.sam_chordas.android.stockhawk.service.StockIntentService;
 import com.sam_chordas.android.stockhawk.service.StockTaskService;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.PeriodicTask;
-import com.google.android.gms.gcm.Task;
-import com.melnykov.fab.FloatingActionButton;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -62,6 +65,12 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     private ItemTouchHelper mItemTouchHelper;
     private QuoteCursorAdapter mCursorAdapter;
     boolean mIsConnected;
+
+    /**
+     * Adapter data.
+     */
+
+    private List<String> mSymbolList = new ArrayList<>();
 
     //--------------------------------------------------
     // Activity Life Cycle
@@ -149,7 +158,11 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
             new RecyclerViewItemClickListener.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
+                    String symbol = mSymbolList.get(position);
                     Intent intent = new Intent(mContext, LineGraphActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putString("symbol", symbol);
+                    intent.putExtras(extras);
                     startActivity(intent);
                 }
             })
@@ -239,6 +252,14 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(getTitle());
+    }
+
+    //--------------------------------------------------
+    // Callbacks
+    //--------------------------------------------------
+
+    public void addToSymbolList(String symbol) {
+        mSymbolList.add(symbol);
     }
 
     //--------------------------------------------------

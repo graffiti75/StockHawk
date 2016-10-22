@@ -1,14 +1,12 @@
 package com.sam_chordas.android.stockhawk.model;
 
-import java.util.List;
-
 /**
- * Query.java.
+ * HistoricalData.java.
  *
  * @author Rodrigo Cericatto
  * @since Oct 21, 2016
  */
-public class Query {
+public class HistoricalDataQuery {
 
     //--------------------------------------------------
     // Attributes
@@ -17,13 +15,13 @@ public class Query {
     private int count;
     private String created;
     private String lang;
-    private List<Quote> results;
+    private QuoteQuery results;
 
     //--------------------------------------------------
     // Constructor
     //--------------------------------------------------
 
-    public Query(int count, String created, String lang, List<Quote> results) {
+    public HistoricalDataQuery(int count, String created, String lang, QuoteQuery results) {
         this.count = count;
         this.created = created;
         this.lang = lang;
@@ -36,7 +34,7 @@ public class Query {
 
     @Override
     public String toString() {
-        return "Query{" +
+        return "HistoricalData{" +
             "count=" + count +
             ", created='" + created + '\'' +
             ", lang='" + lang + '\'' +
@@ -60,7 +58,7 @@ public class Query {
         return lang;
     }
 
-    public List<Quote> getResults() {
+    public QuoteQuery getResults() {
         return results;
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperAdapter;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperViewHolder;
+import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
 
 /**
  * Created by sam_chordas on 10/6/15.
@@ -64,30 +66,55 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     // CursorRecyclerViewAdapter
     //--------------------------------------------------
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    @SuppressWarnings("deprecation")
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
-        viewHolder.symbol.setText(cursor.getString(cursor.getColumnIndex("symbol")));
-        viewHolder.bidPrice.setText(cursor.getString(cursor.getColumnIndex("bid_price")));
-        int sdk = Build.VERSION.SDK_INT;
+        // Activity.
+        MyStocksActivity activity = (MyStocksActivity)mContext;
+
+        // Sets symbol.
+        String symbol = cursor.getString(cursor.getColumnIndex("symbol"));
+        activity.addToSymbolList(symbol);
+        viewHolder.symbolTextView.setText(symbol);
+
+        // Sets bid price.
+        viewHolder.bidPriceTextView.setText(cursor.getString(cursor.getColumnIndex("bid_price")));
+
+        // Sets change.
+        setChangeTextView(viewHolder, cursor);
+    }
+
+    //--------------------------------------------------
+    // Methods
+    //--------------------------------------------------
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @SuppressWarnings("deprecation")
+    private void setChangeTextView(ViewHolder viewHolder, Cursor cursor) {
+        // Sets change.
+        TextView changeTextView = viewHolder.changeTextView;
+        Drawable drawable = mContext.getResources().getDrawable(R.drawable.percent_change_pill_green);
         if (cursor.getInt(cursor.getColumnIndex("is_up")) == 1) {
-            if (sdk < Build.VERSION_CODES.JELLY_BEAN) {
-                viewHolder.change.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.percent_change_pill_green));
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                drawable = mContext.getResources().getDrawable(R.drawable.percent_change_pill_green);
+                changeTextView.setBackgroundDrawable(drawable);
             } else {
-                viewHolder.change.setBackground(mContext.getResources().getDrawable(R.drawable.percent_change_pill_green));
+                changeTextView.setBackground(drawable);
             }
         } else {
-            if (sdk < Build.VERSION_CODES.JELLY_BEAN) {
-                viewHolder.change.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.percent_change_pill_red));
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                drawable = mContext.getResources().getDrawable(R.drawable.percent_change_pill_red);
+                changeTextView.setBackgroundDrawable(drawable);
             } else {
-                viewHolder.change.setBackground(mContext.getResources().getDrawable(R.drawable.percent_change_pill_red));
+                drawable = mContext.getResources().getDrawable(R.drawable.percent_change_pill_red);
+                changeTextView.setBackground(drawable);
             }
         }
+
+        // Sets percent.
         if (Utils.sShowPercent) {
-            viewHolder.change.setText(cursor.getString(cursor.getColumnIndex("percent_change")));
+            viewHolder.changeTextView.setText(cursor.getString(cursor.getColumnIndex("percent_change")));
         } else {
-            viewHolder.change.setText(cursor.getString(cursor.getColumnIndex("change")));
+            viewHolder.changeTextView.setText(cursor.getString(cursor.getColumnIndex("change")));
         }
     }
 
@@ -109,18 +136,18 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     //--------------------------------------------------
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements
-        ItemTouchHelperViewHolder, View.OnClickListener {
+        ItemTouchHelperViewHolder {
 
-        public final TextView symbol;
-        public final TextView bidPrice;
-        public final TextView change;
+        public final TextView symbolTextView;
+        public final TextView bidPriceTextView;
+        public final TextView changeTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            symbol = (TextView) itemView.findViewById(R.id.stock_symbol);
-            symbol.setTypeface(mRobotoLight);
-            bidPrice = (TextView) itemView.findViewById(R.id.bid_price);
-            change = (TextView) itemView.findViewById(R.id.change);
+            symbolTextView = (TextView) itemView.findViewById(R.id.stock_symbol);
+            symbolTextView.setTypeface(mRobotoLight);
+            bidPriceTextView = (TextView) itemView.findViewById(R.id.bid_price);
+            changeTextView = (TextView) itemView.findViewById(R.id.change);
         }
 
         @Override
@@ -131,11 +158,6 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
         @Override
         public void onItemClear() {
             itemView.setBackgroundColor(0);
-        }
-
-        @Override
-        public void onClick(View v) {
-
         }
     }
 }
