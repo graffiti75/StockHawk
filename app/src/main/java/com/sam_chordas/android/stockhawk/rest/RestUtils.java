@@ -1,27 +1,24 @@
 package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.ContentProviderOperation;
+import android.content.Context;
 import android.util.Log;
 
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
-
-import java.util.ArrayList;
+import com.sam_chordas.android.stockhawk.globals.Globals;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * Created by sam_chordas on 10/8/15.
  */
-public class Utils {
-
-    //--------------------------------------------------
-    // Constants
-    //--------------------------------------------------
-
-    private static String LOG_TAG = Utils.class.getSimpleName();
+public class RestUtils {
 
     //--------------------------------------------------
     // Statics
@@ -33,7 +30,7 @@ public class Utils {
     // Methods
     //--------------------------------------------------
 
-    public static ArrayList quoteJsonToContentVals(String JSON) {
+    public static ArrayList quoteJsonToContentVals(Context context, String JSON) {
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
         JSONObject jsonObject;
         JSONArray resultsArray;
@@ -44,19 +41,31 @@ public class Utils {
                 int count = Integer.parseInt(jsonObject.getString("count"));
                 if (count == 1) {
                     jsonObject = jsonObject.getJSONObject("results").getJSONObject("quote");
-                    batchOperations.add(buildBatchOperation(jsonObject));
+                    ContentProviderOperation operation = buildBatchOperation(jsonObject);
+                    if (operation != null) {
+                        batchOperations.add(operation);
+                    } else {
+                        batchOperations = null;
+                    }
                 } else {
                     resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
                     if (resultsArray != null && resultsArray.length() != 0) {
                         for (int i = 0; i < resultsArray.length(); i++) {
                             jsonObject = resultsArray.getJSONObject(i);
-                            batchOperations.add(buildBatchOperation(jsonObject));
+                            ContentProviderOperation operation = buildBatchOperation(jsonObject);
+                            if (operation != null) {
+                                batchOperations.add(operation);
+                            } else {
+                                batchOperations = null;
+                                break;
+                            }
                         }
                     }
                 }
             }
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "String to JSON failed: " + e);
+            Log.e(Globals.LOG_TAG, context.getString(R.string.rest_utils__string_to_json) + " " + e);
+            batchOperations = null;
         }
         return batchOperations;
     }
@@ -89,7 +98,9 @@ public class Utils {
         try {
             String change = jsonObject.getString("Change");
             builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString("symbol"));
-            builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString("Bid")));
+            String bidPrice = jsonObject.getString("Bid");
+            bidPrice = truncateBidPrice(bidPrice);
+            builder.withValue(QuoteColumns.BIDPRICE, bidPrice);
             builder.withValue(QuoteColumns.PERCENT_CHANGE, truncateChange(
                     jsonObject.getString("ChangeinPercent"), true));
             builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false));
@@ -99,7 +110,6 @@ public class Utils {
             } else {
                 builder.withValue(QuoteColumns.ISUP, 1);
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }

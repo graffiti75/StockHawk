@@ -18,7 +18,7 @@ import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperAdapter;
 import com.sam_chordas.android.stockhawk.touch_helper.ItemTouchHelperViewHolder;
-import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
+import com.sam_chordas.android.stockhawk.ui.StocksActivity;
 
 /**
  * Created by sam_chordas on 10/6/15.
@@ -69,7 +69,7 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
         // Activity.
-        MyStocksActivity activity = (MyStocksActivity)mContext;
+        StocksActivity activity = (StocksActivity)mContext;
 
         // Sets symbol.
         String symbol = cursor.getString(cursor.getColumnIndex("symbol"));
@@ -111,7 +111,7 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
         }
 
         // Sets percent.
-        if (Utils.sShowPercent) {
+        if (RestUtils.sShowPercent) {
             viewHolder.changeTextView.setText(cursor.getString(cursor.getColumnIndex("percent_change")));
         } else {
             viewHolder.changeTextView.setText(cursor.getString(cursor.getColumnIndex("change")));

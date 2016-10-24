@@ -25,7 +25,7 @@
         <!-- Activity -->
 
         <activity
-            android:name=".ui.MyStocksActivity"
+            android:name=".ui.StocksActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,5 +54,20 @@
             android:name=".data.generated.QuoteProvider"
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
             android:exported="false" />
+
+        <!-- Widget -->
+
+        <receiver
+            android:name=".widget.StockHawkWidgetProvider"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/widget_text" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/stockhawk_widgetinfo" />
+        </receiver>
     </application>
 </manifest>

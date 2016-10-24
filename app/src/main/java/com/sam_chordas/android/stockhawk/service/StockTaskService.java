@@ -11,9 +11,11 @@ import android.util.Log;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
-import com.sam_chordas.android.stockhawk.rest.Utils;
+import com.sam_chordas.android.stockhawk.globals.Globals;
+import com.sam_chordas.android.stockhawk.rest.RestUtils;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -34,19 +36,13 @@ public class StockTaskService extends GcmTaskService {
     //--------------------------------------------------
 
     /**
-     * Log tag.
-     */
-
-    private String LOG_TAG = StockTaskService.class.getSimpleName();
-
-    /**
      * Http constants.
      */
 
-    private static final String BASE_URL = "https://query.yahooapis.com/v1/public/yql?q=";
+    private static final String V1_URL = "v1/public/yql?q=";
 
-    private static final String POSFIX = "&format=json&diagnostics=true" +
-        "&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
+    private static final String POSFIX = "&format=" + Globals.FORMAT + "&diagnostics=true" +
+        "&env=" + Globals.ENV + "&callback=";
 
     private static final String QUERY_PREFIX = "select * from yahoo.finance.quotes where symbol in (";
 
@@ -76,7 +72,6 @@ public class StockTaskService extends GcmTaskService {
     //--------------------------------------------------
 
     private String fetchData(String url) throws IOException {
-        Log.i(LOG_TAG, "StockTaskService.fetchData() -> Url: " + url);
         Request request = new Request.Builder().url(url).build();
         Response response = mClient.newCall(request).execute();
         return response.body().string();
@@ -127,9 +122,10 @@ public class StockTaskService extends GcmTaskService {
                         contentValues.put(QuoteColumns.ISCURRENT, 0);
                         mContext.getContentResolver().update(QuoteProvider.Quotes.CONTENT_URI, contentValues, null, null);
                     }
-                    mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY, Utils.quoteJsonToContentVals(response));
+                    mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
+                        RestUtils.quoteJsonToContentVals(mContext, response));
                 } catch (RemoteException | OperationApplicationException e) {
-                    Log.e(LOG_TAG, "Error applying batch insert", e);
+                    Log.e(Globals.LOG_TAG, mContext.getString(R.string.stock_task_service__error_batch), e);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -153,7 +149,7 @@ public class StockTaskService extends GcmTaskService {
         // Sets the url.
         try {
             // Base URL for the Yahoo query.
-            url.append(BASE_URL);
+            url.append(Globals.BASE_URL + V1_URL);
             url.append(URLEncoder.encode(QUERY_PREFIX, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

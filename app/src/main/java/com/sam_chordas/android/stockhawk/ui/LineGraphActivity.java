@@ -93,7 +93,7 @@ public class LineGraphActivity extends AppCompatActivity {
 
         // Call.
         String today = getTodayDate();
-        String query = getString(R.string.graph_query, mSymbol, today);
+        String query = getString(R.string.retrofit__graph_query, mSymbol, today);
         Log.i(Globals.LOG_TAG, "LineGraphActivity.getHistoricalData() -> Query: " + query);
         Call<HistoricalData> call = service.getHistoricalData(query, Globals.FORMAT, Globals.ENV);
         call.enqueue(new Callback<HistoricalData>() {

@@ -31,7 +31,7 @@ import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.rest.QuoteCursorAdapter;
 import com.sam_chordas.android.stockhawk.rest.RecyclerViewItemClickListener;
-import com.sam_chordas.android.stockhawk.rest.Utils;
+import com.sam_chordas.android.stockhawk.rest.RestUtils;
 import com.sam_chordas.android.stockhawk.service.StockIntentService;
 import com.sam_chordas.android.stockhawk.service.StockTaskService;
 import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallback;
@@ -39,7 +39,7 @@ import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallb
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class StocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     //--------------------------------------------------
     // Constants
@@ -55,7 +55,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
      * Context.
      */
 
-    private MyStocksActivity mContext = MyStocksActivity.this;
+    private StocksActivity mActivity = StocksActivity.this;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -79,7 +79,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_stocks);
+        setContentView(R.layout.activity_stocks);
 
         checkConnection();
         setServiceIntent(savedInstanceState);
@@ -102,7 +102,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.my_stocks, menu);
+        getMenuInflater().inflate(R.menu.menu_stocks, menu);
         restoreActionBar();
         return true;
     }
@@ -111,11 +111,9 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_settings:
-                return true;
             case R.id.action_change_units:
                 // This is for changing stock changes from percent value to dollar value.
-                Utils.sShowPercent = !Utils.sShowPercent;
+                RestUtils.sShowPercent = !RestUtils.sShowPercent;
                 this.getContentResolver().notifyChange(QuoteProvider.Quotes.CONTENT_URI, null);
                 break;
         }
@@ -128,7 +126,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     private void checkConnection() {
         ConnectivityManager connectivityManager = (ConnectivityManager)
-            mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            mActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
         mIsConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
@@ -159,7 +157,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                 @Override
                 public void onItemClick(View view, int position) {
                     String symbol = mSymbolList.get(position);
-                    Intent intent = new Intent(mContext, LineGraphActivity.class);
+                    Intent intent = new Intent(mActivity, LineGraphActivity.class);
                     Bundle extras = new Bundle();
                     extras.putString("symbol", symbol);
                     intent.putExtras(extras);
@@ -187,10 +185,10 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     }
 
     private MaterialDialog.Builder setMaterialDialogBuilder() {
-        return new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
-            .content(R.string.content_test)
+        return new MaterialDialog.Builder(mActivity).title(R.string.stocks_activity__symbol_search)
+            .content(R.string.stocks_activity__content_test)
             .inputType(InputType.TYPE_CLASS_TEXT)
-            .input(R.string.input_hint, R.string.input_prefill, new MaterialDialog.InputCallback() {
+            .input(R.string.stocks_activity__input_hint, R.string.stocks_activity__input_prefill, new MaterialDialog.InputCallback() {
                 @Override
                 public void onInput(MaterialDialog dialog, CharSequence input) {
                     // On FAB click, receive user input. Make sure the stock doesn't already exist
@@ -199,8 +197,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                         new String[] { QuoteColumns.SYMBOL }, QuoteColumns.SYMBOL + "= ?",
                         new String[] { input.toString() }, null);
                     if (cursor.getCount() != 0) {
-                        Toast toast = Toast.makeText(MyStocksActivity.this,
-                            "This stock is already saved!", Toast.LENGTH_LONG);
+                        Toast toast = Toast.makeText(mActivity,
+                            getString(R.string.stocks_activity__stock_already_saved), Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                         toast.show();
                         return;
@@ -243,7 +241,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     }
 
     private void networkToast() {
-        Toast.makeText(mContext, getString(R.string.network_toast), Toast.LENGTH_SHORT).show();
+        Toast.makeText(mActivity, getString(R.string.stocks_activity__network_toast), Toast.LENGTH_SHORT).show();
     }
 
     @SuppressWarnings("deprecation")
